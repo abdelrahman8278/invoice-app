@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
+import { Header } from '../../components/header/header';
 
 @Component({
   selector: 'app-dashboard',
@@ -21,7 +22,8 @@ import { MatCardModule } from '@angular/material/card';
     MatButtonModule,
     MatIconModule,
     MatTableModule,
-    MatCardModule
+    MatCardModule,
+    Header
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
@@ -40,7 +42,7 @@ export class Dashboard implements OnInit {
   ];
 
   displayedColumns = ['itemCode', 'itemName', 'qty', 'price', 'total', 'actions'];
-
+  dataSource = signal<any[]>([]);
   invoiceForm!: FormGroup;
 
   constructor(private fb: FormBuilder) {}
@@ -48,14 +50,14 @@ export class Dashboard implements OnInit {
   ngOnInit(): void {
     this.invoiceForm = this.fb.group({
       header: this.fb.group({
-        invoiceDate: [''],
-        supplierId: [''],
+        invoiceDate: ['', Validators.required],
+        supplierId: ['', Validators.required],
         notes: [''],
       }),
-      items: this.fb.array([]),
+      items: this.fb.array([], Validators.required),
     });
 
-    this.addRow(); // initialize one row
+    this.addRow();
   }
 
   get items(): FormArray {
@@ -63,11 +65,18 @@ export class Dashboard implements OnInit {
   }
 
   addRow() {
+    if (this.items.length > 0) {
+      const lastRow = this.items.at(this.items.length - 1);
+      if (lastRow.invalid) {
+        lastRow.markAllAsTouched();
+        return;
+      }
+    }
     const row = this.fb.group({
-      itemCode: [''],
+      itemCode: ['', Validators.required],
       itemName: [{ value: '', disabled: true }],
-      qty: [0],
-      price: [0],
+      qty: [0, [Validators.required, Validators.min(1)]],
+      price: [{ value: 0, disabled: true }, [Validators.required, Validators.min(0.001)]],
       total: [{ value: 0, disabled: true }],
     });
     console.log('row=====>',row)
@@ -88,11 +97,14 @@ export class Dashboard implements OnInit {
     console.log('00000000000=====>')
 
     this.items.push(row);
-    console.log('items=====>',this.items)
+    this.refreshTable()
+    console.log('items=====>',this.items.value)
   }
 
   removeRow(index: number) {
     this.items.removeAt(index);
+    if (this.items.length === 0) this.addRow();
+    this.refreshTable()
   }
 
   updateRowTotal(row: FormGroup) {
@@ -108,5 +120,19 @@ export class Dashboard implements OnInit {
       return sum + (row.get('total')?.value || 0);
     }, 0);
   }
+
+  refreshTable() {
+    this.dataSource.set([...this.items.controls]);
+  }
+
+  printInvoice() {
+  if (this.invoiceForm.invalid) {
+    this.invoiceForm.markAllAsTouched();
+    alert("Please fix errors before printing.");
+    return;
+  }
+
+  window.print();
+}
 }
 

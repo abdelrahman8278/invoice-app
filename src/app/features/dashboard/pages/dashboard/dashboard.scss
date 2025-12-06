@@ -1,38 +1,4 @@
-/* .invoice-container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 16px;
-}
 
-.section {
-  padding: 16px;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 16px;
-}
-
-.notes {
-  grid-column: span 2;
-}
-
-.add-btn {
-  margin-top: 16px;
-}
-
-.total-section {
-  text-align: right;
-
-  .total-box {
-    font-size: 20px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-  }
-} */
 
 .page-wrapper {
   padding: 20px;
@@ -41,7 +7,6 @@
   gap: 25px;
 }
 
-/* Cards */
 .section-card {
   padding: 22px;
   border-radius: 14px;
@@ -56,7 +21,6 @@
   background: #fafafa;
 }
 
-/* Section Title */
 .section-title {
   display: flex;
   align-items: center;
@@ -74,18 +38,7 @@
   }
 }
 
-/* Grid Layout */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 20px;
 
-  .notes-field {
-    grid-column: span 2;
-  }
-}
-
-/* Table */
 .table-container {
   overflow-x: auto;
   border-radius: 10px;
@@ -114,7 +67,6 @@
   text-align: right;
 }
 
-/* Add Row Button */
 .add-row-btn {
   margin-top: 15px;
   height: 42px;
@@ -124,7 +76,6 @@
   }
 }
 
-/* Summary */
 .summary-row {
   display: flex;
   justify-content: space-between;
@@ -134,5 +85,67 @@
   .grand-total {
     color: #3f51b5;
   }
+  
 }
+
+.print-table {
+  display: none;
+}
+
+@media print {
+  mat-card button,
+  .add-row-btn,
+  mat-form-field,
+  mat-select,
+  .mat-table {
+    display: none !important;
+  }
+
+  app-header , .page-wrapper{
+    display: none;
+  }
+
+  .print-table {
+    display: block !important;
+    margin-top: 20px;
+  }
+
+  .simple-print-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+
+  .simple-print-table th,
+  .simple-print-table td {
+    border: 1px solid #000;
+    padding: 6px 8px;
+    text-align: left;
+    font-size: 14px;
+  }
+
+  .simple-print-table th {
+    background: #f0f0f0 !important;
+    font-weight: bold;
+  }
+
+  .simple-print-table tfoot td {
+    border-top: 2px solid #000;
+    font-weight: bold;
+    background: #f5f5f5 !important;
+  }
+
+  .simple-print-table .total-label {
+    text-align: right;
+    padding-right: 10px;
+    font-size: 15px;
+  }
+
+  .simple-print-table .total-value {
+    text-align: left;
+    font-size: 15px;
+  }
+}
+
+
 
