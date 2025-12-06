@@ -12,10 +12,13 @@ import { Header } from '../../components/header/header';
 import { ItemsService } from '../../services/items';
 import { Item } from '../../../../core/models/item.interface';
 import { ToastService } from '../../../../core/services/toast.service';
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
+  providers: [provideNativeDateAdapter()],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -26,7 +29,8 @@ import { ToastService } from '../../../../core/services/toast.service';
     MatIconModule,
     MatTableModule,
     MatCardModule,
-    Header
+    Header,  
+    MatDatepickerModule  
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
@@ -91,7 +95,7 @@ export class Dashboard implements OnInit {
     const row = this.fb.group({
       itemCode: ['', Validators.required],
       itemName: [{ value: '', disabled: true }],
-      qty: [0, [Validators.required, Validators.min(1)]],
+      qty: [1, [Validators.required, Validators.min(1)]],
       price: [{ value: 0, disabled: true }, [Validators.required, Validators.min(0.001)]],
       total: [{ value: 0, disabled: true }],
     });
