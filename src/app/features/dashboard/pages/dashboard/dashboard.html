@@ -50,7 +50,7 @@
               <td mat-cell *matCellDef="let row">
                 <mat-form-field appearance="outline">
                   <mat-select [formControl]="row.get('itemCode')">
-                    <mat-option *ngFor="let item of itemsList" [value]="item.code">{{ item.code }}</mat-option>
+                    <mat-option *ngFor="let item of itemsList" [value]="item.id">{{ item.id }}</mat-option>
                   </mat-select>
                   <mat-error *ngIf="row.get('itemCode')?.hasError('required')">
                     Item code is required
@@ -62,7 +62,7 @@
             <ng-container matColumnDef="itemName">
               <th mat-header-cell *matHeaderCellDef>Item Name</th>
               <td mat-cell *matCellDef="let row">
-                <mat-form-field appearance="outline">
+                <mat-form-field appearance="outline" class="py-3">
                   <input matInput readonly [formControl]="row.get('itemName')">
                 </mat-form-field>
               </td>
@@ -71,7 +71,7 @@
             <ng-container matColumnDef="qty">
               <th mat-header-cell *matHeaderCellDef>Qty</th>
               <td mat-cell *matCellDef="let row">
-                <mat-form-field appearance="outline">
+                <mat-form-field appearance="outline" class="py-3">
                   <input matInput type="number" [formControl]="row.get('qty')">
                   <mat-error *ngIf="row.get('qty')?.hasError('required')">
                     Quantity is required
@@ -86,7 +86,7 @@
             <ng-container matColumnDef="price">
               <th mat-header-cell *matHeaderCellDef>Unit Price</th>
               <td mat-cell *matCellDef="let row">
-                <mat-form-field appearance="outline">
+                <mat-form-field appearance="outline" class="py-3">
                   <input matInput readonly [formControl]="row.get('price')">
                   <mat-error *ngIf="row.get('price')?.hasError('required')">
                     Unit price is required
@@ -108,7 +108,7 @@
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let row; let i = index">
-              <button mat-icon-button color="warn" (click)="removeRow(i)">
+              <button mat-icon-button color="warn" class="delete-btn" (click)="removeRow(i)">
                 <mat-icon>delete</mat-icon>
               </button>
               </td>

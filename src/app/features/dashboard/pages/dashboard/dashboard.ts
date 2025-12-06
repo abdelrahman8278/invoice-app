@@ -9,6 +9,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import { Header } from '../../components/header/header';
+import { ItemsService } from '../../services/items';
+import { Item } from '../../../../core/models/item.interface';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -30,24 +33,44 @@ import { Header } from '../../components/header/header';
 })
 export class Dashboard implements OnInit {
 
+  itemsList: Item[] = []
   suppliers = [
     { id: 1, name: 'Supplier A' },
     { id: 2, name: 'Supplier B' },
-  ];
-
-  itemsList = [
-    { code: 'ITM001', name: 'Item Alpha', price: 60 },
-    { code: 'ITM002', name: 'Item Beta', price: 80 },
-    { code: 'ITM003', name: 'Item Gamma', price: 100 },
   ];
 
   displayedColumns = ['itemCode', 'itemName', 'qty', 'price', 'total', 'actions'];
   dataSource = signal<any[]>([]);
   invoiceForm!: FormGroup;
 
-  constructor(private fb: FormBuilder) {}
+  constructor(
+    private fb: FormBuilder,
+    private itemsService: ItemsService,
+    private toaster: ToastService
+  ) {}
 
   ngOnInit(): void {
+    this.initForm();
+    this.addRow();
+    this.getItems();
+  }
+
+  get items(): FormArray {
+    return this.invoiceForm.get('items') as FormArray;
+  }
+
+  getItems(){
+    this.itemsService.getItems().subscribe({
+      next:(data:Item[])=>{
+        this.itemsList = data
+      },
+      error:(error:any)=>{
+        this.toaster.error(error.error.message);
+      }
+    });
+  }
+
+  initForm(){
     this.invoiceForm = this.fb.group({
       header: this.fb.group({
         invoiceDate: ['', Validators.required],
@@ -56,14 +79,7 @@ export class Dashboard implements OnInit {
       }),
       items: this.fb.array([], Validators.required),
     });
-
-    this.addRow();
   }
-
-  get items(): FormArray {
-    return this.invoiceForm.get('items') as FormArray;
-  }
-
   addRow() {
     if (this.items.length > 0) {
       const lastRow = this.items.at(this.items.length - 1);
@@ -79,26 +95,22 @@ export class Dashboard implements OnInit {
       price: [{ value: 0, disabled: true }, [Validators.required, Validators.min(0.001)]],
       total: [{ value: 0, disabled: true }],
     });
-    console.log('row=====>',row)
-    row.get('itemCode')?.valueChanges.subscribe(code => {
-      const selected = this.itemsList.find(i => i.code === code);
+    row.get('itemCode')?.valueChanges.subscribe(id => {
+      const selected = this.itemsList.find((i:any) => i.id === id);
       if (selected) {
         const quantity = row.get('qty')?.value || 0
         row.patchValue({
-          itemName: selected.name,
+          itemName: selected.title,
           price: selected.price,
           total: selected.price * quantity
         });
-        console.log('selected=====>',selected)
       }
     });
     row.get('qty')?.valueChanges.subscribe(() => this.updateRowTotal(row));
     row.get('price')?.valueChanges.subscribe(() => this.updateRowTotal(row));
-    console.log('00000000000=====>')
 
     this.items.push(row);
     this.refreshTable()
-    console.log('items=====>',this.items.value)
   }
 
   removeRow(index: number) {
@@ -128,7 +140,7 @@ export class Dashboard implements OnInit {
   printInvoice() {
   if (this.invoiceForm.invalid) {
     this.invoiceForm.markAllAsTouched();
-    alert("Please fix errors before printing.");
+    this.toaster.error('Please fix errors before printing');
     return;
   }
 
