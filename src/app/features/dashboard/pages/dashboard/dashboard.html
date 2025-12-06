@@ -1,1 +1,175 @@
-<p>dashboard works!</p>
+<div class="container">
+    <app-header></app-header>
+    <div class="page-wrapper">
+    
+      <mat-card class="section-card header-card">
+        <div class="section-title d-flex justify-content-between">
+          <h2>Purchase Invoice</h2>
+          <button mat-raised-button color="primary" (click)="printInvoice()">
+            <mat-icon>print</mat-icon>
+            Print Invoice
+          </button>
+        </div>
+    
+        <div class="d-flex justify-content-between row col-12 mx-auto">
+          <mat-form-field appearance="outline" class="col-lg-6 col-md-6 col-sm-12">
+            <mat-label>Invoice Date</mat-label>
+            <input matInput type="date" [formControl]="$any(invoiceForm.get('header.invoiceDate'))">
+            <mat-error *ngIf="invoiceForm.get('header.invoiceDate')?.hasError('required')">
+                Invoice date is required
+            </mat-error>
+          </mat-form-field>
+    
+          <mat-form-field appearance="outline" class="col-lg-6 col-md-6 col-sm-12">
+            <mat-label>Supplier</mat-label>
+            <mat-select [formControl]="$any(invoiceForm.get('header.supplierId'))">
+              <mat-option *ngFor="let s of suppliers" [value]="s.id">{{ s.name }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="invoiceForm.get('header.supplierId')?.hasError('required')">
+                Supplier is required
+            </mat-error>
+          </mat-form-field>
+    
+          <mat-form-field class="notes-field" appearance="outline" class="col-12">
+            <mat-label>Notes</mat-label>
+            <textarea matInput rows="3" [formControl]="$any(invoiceForm.get('header.notes'))"></textarea>
+          </mat-form-field>
+        </div>
+      </mat-card>
+    
+      <mat-card class="section-card">
+        <div class="section-title">
+          <h2>Invoice Items</h2>
+        </div>
+    
+        <div class="table-container mat-elevation-z3">
+    
+          <table mat-table [dataSource]="dataSource()" class="modern-table">
+            <ng-container matColumnDef="itemCode">
+              <th mat-header-cell *matHeaderCellDef>Item Code</th>
+              <td mat-cell *matCellDef="let row">
+                <mat-form-field appearance="outline">
+                  <mat-select [formControl]="row.get('itemCode')">
+                    <mat-option *ngFor="let item of itemsList" [value]="item.code">{{ item.code }}</mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="row.get('itemCode')?.hasError('required')">
+                    Item code is required
+                  </mat-error>
+                </mat-form-field>
+              </td>
+            </ng-container>
+    
+            <ng-container matColumnDef="itemName">
+              <th mat-header-cell *matHeaderCellDef>Item Name</th>
+              <td mat-cell *matCellDef="let row">
+                <mat-form-field appearance="outline">
+                  <input matInput readonly [formControl]="row.get('itemName')">
+                </mat-form-field>
+              </td>
+            </ng-container>
+    
+            <ng-container matColumnDef="qty">
+              <th mat-header-cell *matHeaderCellDef>Qty</th>
+              <td mat-cell *matCellDef="let row">
+                <mat-form-field appearance="outline">
+                  <input matInput type="number" [formControl]="row.get('qty')">
+                  <mat-error *ngIf="row.get('qty')?.hasError('required')">
+                    Quantity is required
+                  </mat-error>
+                  <mat-error *ngIf="row.get('qty')?.hasError('min')">
+                    Must be at least 1
+                  </mat-error>
+                </mat-form-field>
+              </td>
+            </ng-container>
+    
+            <ng-container matColumnDef="price">
+              <th mat-header-cell *matHeaderCellDef>Unit Price</th>
+              <td mat-cell *matCellDef="let row">
+                <mat-form-field appearance="outline">
+                  <input matInput readonly [formControl]="row.get('price')">
+                  <mat-error *ngIf="row.get('price')?.hasError('required')">
+                    Unit price is required
+                  </mat-error>
+                  <mat-error *ngIf="row.get('price')?.hasError('min')">
+                    Price must be > 0
+                  </mat-error>
+                </mat-form-field>
+              </td>
+            </ng-container>
+    
+            <ng-container matColumnDef="total">
+              <th mat-header-cell *matHeaderCellDef>Total</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="total-display">{{ row.get('total')?.value | number }}</div>
+              </td>
+            </ng-container>
+    
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let row; let i = index">
+              <button mat-icon-button color="warn" (click)="removeRow(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+              </td>
+            </ng-container>
+    
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    
+          </table>
+    
+        </div>
+    
+        <div class="d-flex justify-content-end">
+            <button mat-stroked-button color="primary" class="add-row-btn" (click)="addRow()">
+              <mat-icon>add</mat-icon>
+              Add Item
+            </button>
+        </div>
+      </mat-card>
+    
+      <mat-card class="section-card summary-card">
+        <div class="summary-row">
+          <h3>Grand Total</h3>
+          <h3 class="grand-total">{{ grandTotal | number }}</h3>
+        </div>
+      </mat-card>
+    
+    </div>
+
+<div class="print-table">
+  <h2>Invoice Items</h2>
+
+  <table class="simple-print-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Item Code</th>
+        <th>Item Name</th>
+        <th>Qty</th>
+        <th>Unit Price</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let row of dataSource(); let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ row.get('itemCode')?.value }}</td>
+        <td>{{ row.get('itemName')?.value }}</td>
+        <td>{{ row.get('qty')?.value }}</td>
+        <td>{{ row.get('price')?.value }}</td>
+        <td>{{ row.get('total')?.value }}</td>
+      </tr>
+    </tbody>
+
+    <tfoot>
+      <tr>
+        <td colspan="5" class="total-label">Grand Total</td>
+        <td class="total-value">{{ grandTotal }}</td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+</div>

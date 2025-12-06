@@ -1,0 +1,151 @@
+
+
+.page-wrapper {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.section-card {
+  padding: 22px;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.header-card {
+  background: linear-gradient(135deg, #f7f9fc 0%, #f1f4ff 100%);
+}
+
+.summary-card {
+  background: #fafafa;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+
+  h2 {
+    margin: 0;
+    font-weight: 600;
+  }
+
+  mat-icon {
+    font-size: 28px;
+    color: #3f51b5;
+  }
+}
+
+
+.table-container {
+  overflow-x: auto;
+  border-radius: 10px;
+  background: white;
+}
+
+.modern-table {
+  width: 100%;
+  border-spacing: 0 10px;
+
+  tr {
+    height: 72px;
+  }
+
+  th {
+    font-weight: 600;
+    color: #596280;
+  }
+}
+
+.total-display {
+  padding: 10px 14px;
+  background: #f5f6fa;
+  border-radius: 6px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.add-row-btn {
+  margin-top: 15px;
+  height: 42px;
+
+  mat-icon {
+    margin-right: 4px;
+  }
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 20px;
+  font-weight: 600;
+
+  .grand-total {
+    color: #3f51b5;
+  }
+  
+}
+
+.print-table {
+  display: none;
+}
+
+@media print {
+  mat-card button,
+  .add-row-btn,
+  mat-form-field,
+  mat-select,
+  .mat-table {
+    display: none !important;
+  }
+
+  app-header , .page-wrapper{
+    display: none;
+  }
+
+  .print-table {
+    display: block !important;
+    margin-top: 20px;
+  }
+
+  .simple-print-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+
+  .simple-print-table th,
+  .simple-print-table td {
+    border: 1px solid #000;
+    padding: 6px 8px;
+    text-align: left;
+    font-size: 14px;
+  }
+
+  .simple-print-table th {
+    background: #f0f0f0 !important;
+    font-weight: bold;
+  }
+
+  .simple-print-table tfoot td {
+    border-top: 2px solid #000;
+    font-weight: bold;
+    background: #f5f5f5 !important;
+  }
+
+  .simple-print-table .total-label {
+    text-align: right;
+    padding-right: 10px;
+    font-size: 15px;
+  }
+
+  .simple-print-table .total-value {
+    text-align: left;
+    font-size: 15px;
+  }
+}
+
+
+
