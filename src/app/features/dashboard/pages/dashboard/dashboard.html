@@ -1,1 +1,126 @@
-<p>dashboard works!</p>
+<div class="page-wrapper">
+
+  <!-- HEADER -->
+  <mat-card class="section-card header-card">
+    <div class="section-title">
+      <mat-icon>receipt_long</mat-icon>
+      <h2>Purchase Invoice</h2>
+    </div>
+
+    <div class="grid">
+      <mat-form-field appearance="fill">
+        <mat-label>Invoice Date</mat-label>
+        <input matInput type="date" [formControl]="$any(invoiceForm.get('header.invoiceDate'))">
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Supplier</mat-label>
+        <mat-select [formControl]="$any(invoiceForm.get('header.supplierId'))">
+          <mat-option *ngFor="let s of suppliers" [value]="s.id">{{ s.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="notes-field" appearance="fill">
+        <mat-label>Notes</mat-label>
+        <textarea matInput rows="3" [formControl]="$any(invoiceForm.get('header.notes'))"></textarea>
+      </mat-form-field>
+    </div>
+  </mat-card>
+
+
+
+  <!-- ITEMS TABLE -->
+  <mat-card class="section-card">
+    <div class="section-title">
+      <mat-icon>inventory_2</mat-icon>
+      <h2>Invoice Items</h2>
+    </div>
+
+    <div class="table-container mat-elevation-z3">
+
+      <table mat-table [dataSource]="items.controls" class="modern-table">
+
+        <!-- Item Code -->
+        <ng-container matColumnDef="itemCode">
+          <th mat-header-cell *matHeaderCellDef>Item Code</th>
+          <td mat-cell *matCellDef="let row">
+            <mat-form-field appearance="outline">
+              <mat-select [formControl]="row.get('itemCode')">
+                <mat-option *ngFor="let item of itemsList" [value]="item.code">{{ item.code }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- Item Name -->
+        <ng-container matColumnDef="itemName">
+          <th mat-header-cell *matHeaderCellDef>Item Name</th>
+          <td mat-cell *matCellDef="let row">
+            <mat-form-field appearance="outline">
+              <input matInput readonly [formControl]="row.get('itemName')">
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- Quantity -->
+        <ng-container matColumnDef="qty">
+          <th mat-header-cell *matHeaderCellDef>Qty</th>
+          <td mat-cell *matCellDef="let row">
+            <mat-form-field appearance="outline">
+              <input matInput type="number" [formControl]="row.get('qty')">
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- Price -->
+        <ng-container matColumnDef="price">
+          <th mat-header-cell *matHeaderCellDef>Unit Price</th>
+          <td mat-cell *matCellDef="let row">
+            <mat-form-field appearance="outline">
+              <input matInput type="number" [formControl]="row.get('price')">
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- Total -->
+        <ng-container matColumnDef="total">
+          <th mat-header-cell *matHeaderCellDef>Total</th>
+          <td mat-cell *matCellDef="let row">
+            <div class="total-display">{{ row.get('total')?.value | number }}</div>
+          </td>
+        </ng-container>
+
+        <!-- Actions -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <button mat-icon-button color="warn" (click)="removeRow(i)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+      </table>
+
+    </div>
+
+    <button mat-stroked-button color="primary" class="add-row-btn" (click)="addRow()">
+      <mat-icon>add</mat-icon>
+      Add Item
+    </button>
+  </mat-card>
+
+
+
+  <!-- SUMMARY -->
+  <mat-card class="section-card summary-card">
+    <div class="summary-row">
+      <h3>Grand Total</h3>
+      <h3 class="grand-total">{{ grandTotal | number }}</h3>
+    </div>
+  </mat-card>
+
+</div>
