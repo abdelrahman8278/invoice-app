@@ -150,5 +150,15 @@ export class Dashboard implements OnInit {
 
   window.print();
 }
+
+isControlHasError(path: string, validationType: string): boolean {
+    const control = this.invoiceForm.get(path);
+    if (!control) {
+      return false;
+    }
+    const result =
+      control.hasError(validationType) && (control.dirty || control.touched);
+      return result;
+  }
 }
 

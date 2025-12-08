@@ -1,4 +1,5 @@
 <div class="container">
+  <form [formGroup]="invoiceForm">
     <app-header></app-header>
     <div class="page-wrapper">
     
@@ -11,10 +12,10 @@
           </button>
         </div>
     
-        <div class="d-flex justify-content-between row col-12 mx-auto">
+        <div class="d-flex justify-content-between row col-12 mx-auto" formGroupName="header">
           <mat-form-field class="example-form-field col-lg-6 col-md-6 col-sm-12" appearance="outline">
             <mat-label>Choose a date</mat-label>
-            <input matInput [matDatepicker]="datepicker" [formControl]="$any(invoiceForm.get('header.invoiceDate'))"/>
+            <input matInput [matDatepicker]="datepicker" formControlName="invoiceDate"/>
             <mat-hint>MM/DD/YYYY</mat-hint>
             <mat-datepicker-toggle matIconSuffix [for]="datepicker"></mat-datepicker-toggle>
             <mat-datepicker #datepicker>
@@ -23,7 +24,7 @@
                 <button matButton="elevated" matDatepickerApply>Apply</button>
             </mat-datepicker-actions>
             </mat-datepicker>
-            @if(invoiceForm.get('header.invoiceDate')?.hasError('required')){
+            @if(isControlHasError('header.invoiceDate','required')){
                 <mat-error>
                     Invoice date is required
                 </mat-error>
@@ -32,10 +33,10 @@
     
           <mat-form-field appearance="outline" class="col-lg-6 col-md-6 col-sm-12">
             <mat-label>Supplier</mat-label>
-            <mat-select [formControl]="$any(invoiceForm.get('header.supplierId'))">
+            <mat-select formControlName="supplierId">
               <mat-option *ngFor="let s of suppliers" [value]="s.id">{{ s.name }}</mat-option>
             </mat-select>
-            @if(invoiceForm.get('header.supplierId')?.hasError('required')){
+            @if(isControlHasError('header.supplierId','required')){
                 <mat-error>
                     Supplier is required
                 </mat-error>
@@ -44,7 +45,7 @@
     
           <mat-form-field class="notes-field" appearance="outline" class="col-12">
             <mat-label>Notes</mat-label>
-            <textarea matInput rows="3" [formControl]="$any(invoiceForm.get('header.notes'))"></textarea>
+            <textarea matInput rows="3" formControlName="notes"></textarea>
           </mat-form-field>
         </div>
       </mat-card>
@@ -54,17 +55,17 @@
           <h2>Invoice Items</h2>
         </div>
     
-        <div class="table-container mat-elevation-z3">
+        <div class="table-container mat-elevation-z3" formArrayName="items">
     
           <table mat-table [dataSource]="dataSource()" class="modern-table">
             <ng-container matColumnDef="itemCode">
               <th mat-header-cell *matHeaderCellDef>Item Code</th>
-              <td mat-cell *matCellDef="let row">
+              <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
                 <mat-form-field appearance="outline">
-                  <mat-select [formControl]="row.get('itemCode')">
+                  <mat-select formControlName="itemCode">
                     <mat-option *ngFor="let item of itemsList" [value]="item.id">{{ item.id }}</mat-option>
                   </mat-select>
-                  @if(row.get('itemCode')?.hasError('required')){
+                  @if(isControlHasError(`items.${i}.itemCode`, 'required')){
                       <mat-error>
                         Item code is required
                       </mat-error>
@@ -75,24 +76,24 @@
     
             <ng-container matColumnDef="itemName">
               <th mat-header-cell *matHeaderCellDef>Item Name</th>
-              <td mat-cell *matCellDef="let row">
+              <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
                 <mat-form-field appearance="outline" class="py-3">
-                  <input matInput readonly [formControl]="row.get('itemName')">
+                  <input matInput readonly formControlName="itemName">
                 </mat-form-field>
               </td>
             </ng-container>
     
             <ng-container matColumnDef="qty">
               <th mat-header-cell *matHeaderCellDef>Qty</th>
-              <td mat-cell *matCellDef="let row">
+              <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
                 <mat-form-field appearance="outline" class="py-3">
-                  <input matInput type="number" [formControl]="row.get('qty')">
-                  @if(row.get('qty')?.hasError('required')){
+                  <input matInput type="number" formControlName="qty">
+                  @if(isControlHasError(`items.${i}.qty`, 'required')){
                       <mat-error>
                         Quantity is required
                       </mat-error>
                   }
-                  @if(row.get('qty')?.hasError('min')){
+                  @if(isControlHasError(`items.${i}.qty`, 'min')){
                       <mat-error>
                         Must be at least 1
                       </mat-error>
@@ -103,15 +104,15 @@
     
             <ng-container matColumnDef="price">
               <th mat-header-cell *matHeaderCellDef>Unit Price</th>
-              <td mat-cell *matCellDef="let row">
+              <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
                 <mat-form-field appearance="outline" class="py-3">
-                  <input matInput readonly [formControl]="row.get('price')">
-                  @if(row.get('price')?.hasError('required')){
+                  <input matInput readonly formControlName="price">
+                  @if(isControlHasError(`items.${i}.price`, 'required')){
                       <mat-error>
                         Unit price is required
                       </mat-error>
                   }
-                  @if(row.get('price')?.hasError('min')){
+                  @if(isControlHasError(`items.${i}.price`, 'min')){
                       <mat-error>
                         Price must be more than 0
                       </mat-error>
@@ -122,7 +123,7 @@
     
             <ng-container matColumnDef="total">
               <th mat-header-cell *matHeaderCellDef>Total</th>
-              <td mat-cell *matCellDef="let row">
+              <td mat-cell *matCellDef="let row; let i = index" [formGroupName]="i">
                 <div class="total-display">{{ row.get('total')?.value | number }}</div>
               </td>
             </ng-container>
@@ -160,42 +161,43 @@
     
     </div>
 
-<div class="print-table">
-    <div class="invoice-print-head">
-        <p class="col-12">{{invoiceForm.get('header.invoiceDate')?.value | date}}</p>
-        <p class="col-12">{{invoiceForm.get('header.notes')?.value}}</p>
+    <div class="print-table">
+        <div class="invoice-print-head">
+            <p class="col-12">{{invoiceForm.get('header.invoiceDate')?.value | date}}</p>
+            <p class="col-12">{{invoiceForm.get('header.notes')?.value}}</p>
+        </div>
+      <h2>Invoice Items</h2>
+
+      <table class="simple-print-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Item Code</th>
+            <th>Item Name</th>
+            <th>Qty</th>
+            <th>Unit Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let row of dataSource(); let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ row.get('itemCode')?.value }}</td>
+            <td>{{ row.get('itemName')?.value }}</td>
+            <td>{{ row.get('qty')?.value }}</td>
+            <td>{{ row.get('price')?.value }}</td>
+            <td>{{ row.get('total')?.value }}</td>
+          </tr>
+        </tbody>
+
+        <tfoot>
+          <tr>
+            <td colspan="5" class="total-label">Grand Total</td>
+            <td class="total-value">{{ grandTotal }}</td>
+          </tr>
+        </tfoot>
+      </table>
     </div>
-  <h2>Invoice Items</h2>
-
-  <table class="simple-print-table">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Item Code</th>
-        <th>Item Name</th>
-        <th>Qty</th>
-        <th>Unit Price</th>
-        <th>Total</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      <tr *ngFor="let row of dataSource(); let i = index">
-        <td>{{ i + 1 }}</td>
-        <td>{{ row.get('itemCode')?.value }}</td>
-        <td>{{ row.get('itemName')?.value }}</td>
-        <td>{{ row.get('qty')?.value }}</td>
-        <td>{{ row.get('price')?.value }}</td>
-        <td>{{ row.get('total')?.value }}</td>
-      </tr>
-    </tbody>
-
-    <tfoot>
-      <tr>
-        <td colspan="5" class="total-label">Grand Total</td>
-        <td class="total-value">{{ grandTotal }}</td>
-      </tr>
-    </tfoot>
-  </table>
-</div>
+  </form>
 </div>
